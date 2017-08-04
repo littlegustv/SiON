@@ -8,6 +8,6 @@
   "releasenote": "Fixed parsing of macros so now a proper song plays!",
   "contributors": ["gunnbr"],    
   "dependencies": {
-    "openfl": ""
+    "openfl": "6.0.0"
   }
 }
