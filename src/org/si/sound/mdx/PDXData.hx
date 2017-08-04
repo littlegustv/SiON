@@ -66,7 +66,7 @@ class PDXData extends AbstructLoader
         var length : Int;
         
         clear();
-        bytes.endian = "bigEndian";
+        bytes.endian = BIG_ENDIAN;
         
         for (i in 0...96){
             bytes.position = i * 8;

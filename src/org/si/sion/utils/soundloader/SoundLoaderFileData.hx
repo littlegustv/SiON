@@ -247,11 +247,13 @@ class SoundLoaderFileData extends EventDispatcher
     
     private function _onComplete(e : Event) : Void
     {
+        var loader : URLLoader = cast(e.target, URLLoader);
+
         trace('SoundLoaderFileData.onComplete');
         _removeAllListeners();
-        _soundLoader._onProgress(this, Std.int(e.target.bytesLoaded - _bytesLoaded), Std.int(e.target.bytesTotal - _bytesTotal));
-        _bytesLoaded = e.target.bytesLoaded;
-        _bytesTotal = e.target.bytesTotal;
+        _soundLoader._onProgress(this, Std.int(loader.bytesLoaded - _bytesLoaded), Std.int(loader.bytesTotal - _bytesTotal));
+        _bytesLoaded = loader.bytesLoaded;
+        _bytesTotal = loader.bytesTotal;
         _postProcess();
     }
     
@@ -324,14 +326,14 @@ class SoundLoaderFileData extends EventDispatcher
     
     private function _convertBitmapDataToSoundFont(bitmap : BitmapData) : Void
     {
-        var bitmap2bytes : ByteArrayExt = new ByteArrayExt();  // convert BitmapData to ByteArray
+        var bitmap2bytes : ByteArray = new ByteArray();  // convert BitmapData to ByteArray
         trace('in convert');
         _loader = null;
         _fontLoader = new SiONSoundFontLoader();  // convert ByteArray to SWF and SWF to soundList  
         _fontLoader.addEventListener(Event.COMPLETE, __convertB2SF_onComplete);
         _fontLoader.addEventListener(IOErrorEvent.IO_ERROR, __errorCallback);
         trace('Calling loadbytes');
-        var dataBytes = bitmap2bytes.fromBitmapData(bitmap);
+        var dataBytes = ByteArrayExt.fromBitmapData(new ByteArray(), bitmap);
         var success = _fontLoader.loadBytes(dataBytes);
         if (!success)
         {

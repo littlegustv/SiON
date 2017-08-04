@@ -124,10 +124,6 @@ class MatrixPad extends Bitmap
         stage.addEventListener(Event.REMOVED_FROM_STAGE, _onRemoved);
         addEventListener("enterFrame", _onEnterFrame);
         stage.addEventListener("click", _onClick);
-#if (!flash)
-        stage.addEventListener(JoystickEvent.AXIS_MOVE, onJoyAxisMove);
-        stage.addEventListener(JoystickEvent.BUTTON_DOWN, onJoyButtonDown);
-#end
     }
 
     private var bJustMoved : Bool = false;
@@ -176,6 +172,8 @@ class MatrixPad extends Bitmap
         joyTrack--;
     }
 
+// TODO: GameInput
+/*
     private function onJoyAxisMove (event:JoystickEvent):Void {
         if (Math.abs(event.x) < Main.DEAD_ZONE && Math.abs(event.y) < Main.DEAD_ZONE) {
             bJustMoved = false;
@@ -213,6 +211,7 @@ class MatrixPad extends Bitmap
             else buffer.copyPixels(padOff, padOff.rect, pt);
         }
     }
+*/
 
     private function _onRemoved(e: Event) {
         removeEventListener("enterFrame", _onEnterFrame);

@@ -31,46 +31,31 @@ import openfl.display.BitmapData;
 typedef CallbackType = Event->Void;
 
 /** Extended ByteArray, png image serialize, IFF chunk structure, FileReference operations. */
-class ByteArrayExt extends ByteArray
+class ByteArrayExt
 {
+    public var bytes:ByteArray;
+    public var name:String;
+
+    public function new(copyFrom:ByteArray = null)
+    {
+        if (copyFrom != null) {
+            bytes.writeBytes(copyFrom);
+            bytes.endian = copyFrom.endian;
+            bytes.position = 0;
+        }
+    }
+
     // variables
     //--------------------------------------------------
     private static var crc32 : Array<Int> = null;
-    
-    /** name of this ByteArray */
-    public var name : String = null;
-    
-    
-    
-    
-    // constructor
-    //--------------------------------------------------
-    /** constructor */
-    public function new(copyFrom : ByteArray = null)
-    {
-        super();
-        if (copyFrom != null) {
-            this.writeBytes(copyFrom);
-            this.endian = copyFrom.endian;
-            this.position = 0;
-        }
-        else {
-            // By default, use little endian, since SWF files
-            // used by SoundFont are in little endian format
-            endian = Endian.LITTLE_ENDIAN;
-        }
-    }
-    
-    
-    
     
     // bitmap data operations
     //--------------------------------------------------
     /** translate from BitmapData 
      *  @param bmd BitmapData translating from. 
-     *  @return this instance
+     *  @return input instance
      */
-    public function fromBitmapData(bmd : BitmapData) : ByteArrayExt
+    public static function fromBitmapData(input : ByteArray, bmd : BitmapData) : ByteArray
     {
         var x : Int;
         var y : Int;
@@ -79,7 +64,7 @@ class ByteArrayExt extends ByteArray
         var h : Int = bmd.height;
         var len : Int;
         var p : Int;
-        this.clear();
+        input.clear();
         len = bmd.getPixel(w - 1, h - 1);
         y = 0;
         i = 0;
@@ -87,18 +72,18 @@ class ByteArrayExt extends ByteArray
             x = 0;
             while (x < w && i < len) {
                 p = bmd.getPixel(x, y);
-                this.writeByte(p >>> 16);
+                input.writeByte(p >>> 16);
                 if (++i >= len)                     break;
-                this.writeByte(p >>> 8);
+                input.writeByte(p >>> 8);
                 if (++i >= len)                     break;
-                this.writeByte(p);
+                input.writeByte(p);
                 x++;
                 i++;
             }
             y++;
         }
-        this.position = 0;
-        return this;
+        input.position = 0;
+        return input;
     }
     
     
@@ -109,36 +94,36 @@ class ByteArrayExt extends ByteArray
      *  @param fillColor same as BitmapData's constructor.
      *  @return translated BitmapData
      */
-    public function toBitmapData(width : Int = 0, height : Int = 0, transparent : Bool = true, fillColor : Int = 0xFFFFFFFF) : BitmapData
+    public static function toBitmapData(input : ByteArray, width : Int = 0, height : Int = 0, transparent : Bool = true, fillColor : Int = 0xFFFFFFFF) : BitmapData
     {
         var x : Int = 0;
         var y : Int;
         var reqh : Int;
         var bmd : BitmapData;
-        var len : Int = this.length;
+        var len : Int = input.length;
         var p : Int;
         if (width == 0) width = ((Math.floor(Math.sqrt(len) + 65535 / 65536)) + 15) & (~15);
         reqh = ((Math.floor(len / width + 65535 / 65536)) + 15) & (~15);
         if (height == 0 || reqh > height)             height = reqh;
         bmd = new BitmapData(width, height, transparent, fillColor);
-        this.position = 0;
+        input.position = 0;
         y = 0;
         while (y < height) {
             x = 0;
             while (x < width) {
-                if (this.bytesAvailable < 3) break;
-                bmd.setPixel32(x, y, 0xff000000 | ((this.readUnsignedShort() << 8) | this.readUnsignedByte()));
+                if (input.bytesAvailable < 3) break;
+                bmd.setPixel32(x, y, 0xff000000 | ((input.readUnsignedShort() << 8) | input.readUnsignedByte()));
                 x++;
             }
             y++;
         }
         p = 0xff000000;
-        if (this.bytesAvailable > 0)             p |= this.readUnsignedByte() << 16;
-        if (this.bytesAvailable > 0)             p |= this.readUnsignedByte() << 8;
-        if (this.bytesAvailable > 0)             p |= this.readUnsignedByte();
+        if (input.bytesAvailable > 0)             p |= input.readUnsignedByte() << 16;
+        if (input.bytesAvailable > 0)             p |= input.readUnsignedByte() << 8;
+        if (input.bytesAvailable > 0)             p |= input.readUnsignedByte();
         bmd.setPixel32(x, y, p);
-        this.position = 0;
-        bmd.setPixel32(x, y, 0xff000000 | this.length);
+        input.position = 0;
+        bmd.setPixel32(x, y, 0xff000000 | input.length);
         return bmd;
     }
     
@@ -148,14 +133,14 @@ class ByteArrayExt extends ByteArray
      *  @param height png file height, set 0 to calculate automatically.
      *  @return ByteArrayExt of PNG data
      */
-    public function toPNGData(width : Int = 0, height : Int = 0) : ByteArrayExt
+    public static function toPNGData(input : ByteArray, width : Int = 0, height : Int = 0) : ByteArray
     {
         var i : Int;
         var imax : Int;
         var reqh : Int;
-        var pixels : Int = Std.int((this.length + 2) / 3);
+        var pixels : Int = Std.int((input.length + 2) / 3);
         var y : Int;
-        var png : ByteArrayExt = new ByteArrayExt();
+        var png : ByteArray = new ByteArray();
         var header : ByteArray = new ByteArray();
         var content : ByteArray = new ByteArray();
 
@@ -181,14 +166,14 @@ class ByteArrayExt extends ByteArray
         i = 0;
         while (i < imax){
             content.writeByte(0);
-            content.writeBytes(this, i * 3, width * 3);
+            content.writeBytes(input, i * 3, width * 3);
             i += width;
             y++;
         }
         content.writeByte(0);
-        content.writeBytes(this, i * 3, this.length - i * 3);
+        content.writeBytes(input, i * 3, input.length - i * 3);
         imax = (i + width) * 3;
-        for (i in this.length...imax) {
+        for (i in input.length...imax) {
             content.writeByte(0);
         }
         imax = width * 3 + 1;
@@ -197,7 +182,7 @@ class ByteArrayExt extends ByteArray
                 content.writeByte(0);
             }
         }
-        i = this.length;
+        i = input.length;
         content.position -= 3;
         content.writeByte(i >>> 16);
         content.writeByte(i >>> 8);
@@ -221,61 +206,61 @@ class ByteArrayExt extends ByteArray
     // IFF chunk operations
     //--------------------------------------------------
     /** write IFF chunk */
-    public function writeChunk(chunkID : String, data : ByteArray, listType : String = null) : Void
+    public static function writeChunk(input : ByteArray, chunkID : String, data : ByteArray, listType : String = null) : Void
     {
         var isList : Bool = (chunkID == "RIFF" || chunkID == "LIST");
         var len : Int = (((data != null)) ? data.length : 0) + (((isList)) ? 4 : 0);
-        this.writeMultiByte((chunkID + "    ").substr(0, 4), "us-ascii");
-        this.writeInt(len);
+        input.writeMultiByte((chunkID + "    ").substr(0, 4), "us-ascii");
+        input.writeInt(len);
         if (isList) {
-            if (listType != null)                 this.writeMultiByte((listType + "    ").substr(0, 4), "us-ascii")
-            else this.writeMultiByte("    ", "us-ascii");
+            if (listType != null)                 input.writeMultiByte((listType + "    ").substr(0, 4), "us-ascii")
+            else input.writeMultiByte("    ", "us-ascii");
         }
         if (data != null) {
-            this.writeBytes(data);
-            if ((len & 1) != 0) this.writeByte(0);
+            input.writeBytes(data);
+            if ((len & 1) != 0) input.writeByte(0);
         }
     }
     
     
     /** read (or search) IFF chunk from current position. */
-    public function readChunk(bytes : ByteArray, offset : Int = 0, searchChunkID : String = null) : Dynamic
+    public static function readChunk(input : ByteArray, bytes : ByteArray, offset : Int = 0, searchChunkID : String = null) : Dynamic
     {
         var id : String;
         var len : Int;
         var type : String = null;
-        while (this.bytesAvailable > 0){
-            id = this.readMultiByte(4, "us-ascii");
-            len = this.readInt();
+        while (input.bytesAvailable > 0){
+            id = input.readMultiByte(4, "us-ascii");
+            len = input.readInt();
             if (searchChunkID == null || searchChunkID == id) {
                 if (id == "RIFF" || id == "LIST") {
-                    type = this.readMultiByte(4, "us-ascii");
-                    this.readBytes(bytes, offset, len - 4);
+                    type = input.readMultiByte(4, "us-ascii");
+                    input.readBytes(bytes, offset, len - 4);
                 }
                 else {
-                    this.readBytes(bytes, offset, len);
+                    input.readBytes(bytes, offset, len);
                 }
-                if ((len & 1) != 0) this.readByte();
-                bytes.endian = this.endian;
+                if ((len & 1) != 0) input.readByte();
+                bytes.endian = input.endian;
                 return {
                     chunkID : id,
                     length : len,
                     listType : type,
                 };
             }
-            this.position += len + (len & 1);
+            input.position += len + (len & 1);
         }
         return null;
     }
     
     
     /** read all IFF chunks from current position. */
-    public function readAllChunks() : Dynamic
+    public static function readAllChunks(input : ByteArray) : Dynamic
     {
         var header : Dynamic;
         var ret : Dynamic = { };
-        var pickup : ByteArrayExt;
-        while (header = readChunk(pickup = new ByteArrayExt())){
+        var pickup : ByteArray;
+        while (header = readChunk(input, pickup = new ByteArray())){
             if (Lambda.has(ret, header.chunkID)) {
                 if (Std.is(ret[header.chunkID], Array))                     ret[header.chunkID].push(pickup)
                 else ret[header.chunkID] = [ret[header.chunkID]];
@@ -298,10 +283,10 @@ class ByteArrayExt extends ByteArray
      *  @param onCancel handler for Event.CANCEL. The format is function(e:Event) : void.
      *  @param onError handler for Event.IO_ERROR. The format is function(e:IOErrorEvent) : void.
      */
-    public function load(url : String, onComplete : ByteArrayExt->Void = null, onCancel : Event->Void = null, onError : Event->Void = null) : Void
+    public static function load(url : String, onComplete : ByteArray->Void = null, onCancel : Event->Void = null, onError : Event->Void = null) : Void
     {
         var loader : URLLoader = new URLLoader();
-        var bae : ByteArrayExt = this;
+        var bae : ByteArray = new ByteArray();
 
         var _removeAllEventListeners : Event->CallbackType->Void = null;
 
@@ -312,8 +297,9 @@ class ByteArrayExt extends ByteArray
             _removeAllEventListeners(e, onError);
         };
         function _onLoadComplete(e : Event) : Void{
+            var loader : URLLoader = cast(e.target, URLLoader);
             bae.clear();
-            bae.writeBytes(e.target.data);
+            bae.writeBytes(cast(loader.data, ByteArray));
             _removeAllEventListeners(e, null);
             bae.position = 0;
             if (onComplete != null) onComplete(bae);
@@ -345,12 +331,12 @@ class ByteArrayExt extends ByteArray
      *  @param fileFilterName name of file filter.
      *  @param extensions extensions of file filter (like "*.jpg;*.png;*.gif").
      */
-    public function browse(onComplete : ByteArrayExt->Void = null, onCancel : Event->Void = null, onError : IOErrorEvent->Void = null, fileFilterName : String = null, extensions : String = null) : Void
+    public static function browse(onComplete : ByteArrayExt->Void = null, onCancel : Event->Void = null, onError : IOErrorEvent->Void = null, fileFilterName : String = null, extensions : String = null) : Void
     {
         return;
 #if FILE_REFERENCE_ENABLED
         var fr : FileReference = new FileReference();
-        var bae : ByteArrayExt = this;
+        var bae : ByteArrayExt = new ByteArray();
         fr.addEventListener("select", function(e : Event) : Void{
                     e.target.removeEventListener(e.type, arguments.callee);
                     fr.addEventListener("complete", _onBrowseComplete);
@@ -389,14 +375,14 @@ class ByteArrayExt extends ByteArray
      *  @param onCancel handler for Event.CANCEL. The format is function(e:Event) : void.
      *  @param onError handler for Event.IO_ERROR. The format is function(e:IOErrorEvent) : void.
      */
-    public function save(defaultFileName : String = null, onComplete : Event->Void = null, onCancel : Event->Void = null, onError : IOErrorEvent->Void = null) : Void
+    public static function save(defaultFileName : String = null, onComplete : Event->Void = null, onCancel : Event->Void = null, onError : IOErrorEvent->Void = null) : Void
     {
 #if SAVE_IMPLEMENTED
         var fr : FileReference = new FileReference();
         fr.addEventListener("complete", _onSaveComplete);
         fr.addEventListener("cancel", _onSaveCancel);
         fr.addEventListener("ioError", _onSaveError);
-        fr.save(this, defaultFileName);
+        fr.save(input, defaultFileName);
         
         function _removeAllEventListeners(e : Event, callback : Event->Void) : Void{
             fr.removeEventListener("complete", _onSaveComplete);
@@ -416,14 +402,12 @@ class ByteArrayExt extends ByteArray
     }
     
     
-    
-    
     // zip file operations
     //--------------------------------------------------
     /** Expand zip file including plural files.
      *  @return List of ByteArrayExt
      */
-    public function expandZipFile() : Array<ByteArrayExt>
+    public static function expandZipFile(input : ByteArrayExt) : Array<ByteArrayExt>
     {
         var bytes : ByteArray = new ByteArray();
         var fileName : String;
@@ -436,10 +420,10 @@ class ByteArrayExt extends ByteArray
         var signature : Int;
         
         bytes.endian = Endian.LITTLE_ENDIAN;
-        this.endian = Endian.LITTLE_ENDIAN;
-        this.position = 0;
-        while (this.position < this.length){
-            this.readBytes(bytes, 0, 30);
+        input.bytes.endian = Endian.LITTLE_ENDIAN;
+        input.bytes.position = 0;
+        while (input.bytes.position < input.bytes.length){
+            input.bytes.readBytes(bytes, 0, 30);
             bytes.position = 0;
             signature = bytes.readUnsignedInt();
             if (signature != 0x04034b50) break;  // check signature
@@ -450,15 +434,15 @@ class ByteArrayExt extends ByteArray
             bytes.position = 28;
             xfldLength = bytes.readShort();
             
-            this.readBytes(bytes, 30, flNameLength + xfldLength);
+            input.bytes.readBytes(bytes, 30, flNameLength + xfldLength);
             bytes.position = 30;
             fileName = bytes.readUTFBytes(flNameLength);
             bytes.position = 18;
             compSize = bytes.readUnsignedInt();
             
             bae = new ByteArrayExt();
-            this.readBytes(bae, 0, compSize);
-            if (compMethod == 8) bae.uncompress(CompressionAlgorithm.DEFLATE);
+            input.bytes.readBytes(bae.bytes, 0, compSize);
+            if (compMethod == 8) bae.bytes.uncompress(CompressionAlgorithm.DEFLATE);
             bae.name = fileName;
             result.push(bae);
         }

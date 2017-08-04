@@ -136,7 +136,7 @@ class PatternSequencer extends SoundObject
      *  @param defaultLength Default length, this value is referenced when Note.length property is Number.NaN.
      *  @param synth synthesizer to play
      */
-    public function new(defaultNote : Int = 60, defaultVelocity : Int = 128, defaultLength : Float = 0, synth : VoiceReference = null)
+    public function new(defaultNote : Int = 60, defaultVelocity : Int = 128, defaultLength : Int = 0, synth : VoiceReference = null)
     {
         super("PatternSequencer", synth);
         _data = new SiONData();

@@ -14,27 +14,14 @@ import openfl.events.Event;
 import openfl.events.KeyboardEvent;
 import openfl.events.MouseEvent;
 import openfl.events.TouchEvent;
-import openfl.events.JoystickEvent;
 import openfl.display.Sprite;
 import openfl.text.TextField;
 
-#if ouya
-import openfl.utils.JNI;
-import tv.ouya.console.api.OuyaController;
-#end
-
 class Main extends Sprite
 {
-	#if ouya
-	public static inline var DEAD_ZONE : Float = OuyaController.STICK_DEADZONE;
-	static inline public var BUTTON_SELECT:Int = OuyaController.BUTTON_O;
-	static inline public var BUTTON_BACK : Int = OuyaController.BUTTON_A;
-	#else
 	public static inline var DEAD_ZONE : Float = 0.4;
 	static inline public var BUTTON_SELECT : Int = 0;
 	static inline public var BUTTON_BACK : Int = 9;
-	#end
-
 
 	var mMenu : Menu;
 	var mCurrentDemo : Sprite = null;
@@ -43,7 +30,8 @@ class Main extends Sprite
 	public function new() {
 		super();
 		stage.addEventListener(KeyboardEvent.KEY_UP, onKeyUp);
-		stage.addEventListener(JoystickEvent.BUTTON_DOWN, onJoyButtonDown);
+		// TODO: GameInput
+		//stage.addEventListener(JoystickEvent.BUTTON_DOWN, onJoyButtonDown);
 
 		mMenu = new Menu(this);
 		addChild(mMenu);
@@ -60,7 +48,7 @@ class Main extends Sprite
 			event.stopImmediatePropagation ();
 			if (mCurrentDemo == null) {
 				// End the program
-				Lib.exit ();
+				//Lib.exit(); TODO: EXIT
 			}
 			else {
 				// End the current demo, return to the main menu
@@ -71,6 +59,8 @@ class Main extends Sprite
 		}
 	}
 
+// TODO: GameInput
+/*
 	private function onJoyButtonDown (event:JoystickEvent):Void {
 		if (event.id == Main.BUTTON_BACK) {
 			trace('Button BACK hit');
@@ -86,7 +76,7 @@ class Main extends Sprite
 			}
 		}
 	}
-
+*/
 }
 
 class Menu extends Sprite
@@ -131,11 +121,6 @@ class Menu extends Sprite
 		stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
 		stage.addEventListener(TouchEvent.TOUCH_TAP, onTouchTap);
 		stage.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
-#if (!flash)
-		stage.addEventListener(JoystickEvent.AXIS_MOVE, onJoyAxisMove);
-		stage.addEventListener(JoystickEvent.BUTTON_DOWN, onJoyButtonDown);
-		stage.addEventListener(JoystickEvent.HAT_MOVE, onJoyHatMove);
-#end
 
 		if (mInitialized) {
 			mSelector.y = menuTop;
@@ -223,11 +208,6 @@ class Menu extends Sprite
 		stage.removeEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
 		stage.removeEventListener(TouchEvent.TOUCH_TAP, onTouchTap);
 		stage.removeEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
-#if (!flash)
-		stage.removeEventListener(JoystickEvent.AXIS_MOVE, onJoyAxisMove);
-		stage.removeEventListener(JoystickEvent.BUTTON_DOWN, onJoyButtonDown);
-		stage.removeEventListener(JoystickEvent.HAT_MOVE, onJoyHatMove);
-#end
 
 		mMain.runSelection( menuItems[mSelectedItem].type );
 	}
@@ -244,37 +224,4 @@ class Menu extends Sprite
 			runSelection();
 		}
 	}
-
-#if (!flash)
-	private var bJustMoved = false;
-	private function onJoyAxisMove (event:JoystickEvent):Void {
-		trace('JoyAxisMove: $event');
-		if (Math.abs(event.y) < Main.DEAD_ZONE) {
-			bJustMoved = false;
-			return;
-		}
-
-		if (bJustMoved) return;
-
-		if (event.y < -Main.DEAD_ZONE) {
-			bJustMoved = true;
-			menuUp();
-		}
-		else if (event.y > Main.DEAD_ZONE) {
-			bJustMoved = true;
-			menuDown();
-		}
-	}
-
-	private function onJoyButtonDown (event:JoystickEvent):Void {
-		trace('Joy button down ${event.id}');
-		if (event.id == Main.BUTTON_SELECT) {
-			runSelection();
-		}
-	}
-
-	private function onJoyHatMove (event:JoystickEvent):Void {
-		trace('Joy hat move $event');
-	}
-#end
 }

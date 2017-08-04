@@ -67,7 +67,7 @@ class PCMSample extends EventDispatcher
     private var _waveDataChunks : Dynamic = null;
 
     /** wave data */
-    private var _waveData : ByteArrayExt = null;
+    private var _waveData : ByteArray = null;
 
     /** wave data format ID */
     private var _waveDataFormatID : Int;
@@ -387,28 +387,25 @@ class PCMSample extends EventDispatcher
      *  @param waveFile ByteArray of wave file.
      */  
     public function loadWaveFromByteArray(waveFile : ByteArray) : PCMSample {
-        var bae : ByteArrayExt = try cast(waveFile, ByteArrayExt) catch(e:Dynamic) null;
-        var content : ByteArrayExt = new ByteArrayExt();
+        var bae : ByteArray = new ByteArray();
+        bae.readBytes(waveFile, 0, waveFile.length);
+
+        var content : ByteArray = new ByteArray();
         var fileSize : Int;
         var header : Dynamic;
-        var chunkBAE : ByteArrayExt;
+        var chunkBAE : ByteArray;
         var sliceCount : Int;
         var i : Int;
         var pos : Int;
         
-        if (bae == null) bae = new ByteArrayExt(waveFile);
-#if flash
         bae.endian = LITTLE_ENDIAN;
-#else
-        bae.endian = "littleEndian";
-#end
         bae.position = 0;
-        header = bae.readChunk(content);
+        header = ByteArrayExt.readChunk(bae, content);
         if (header.chunkID != "RIFF" || header.listType != "WAVE")
             dispatchEvent(new ErrorEvent("Not good wave file"))
         else {
             fileSize = header.length;
-            _waveDataChunks = content.readAllChunks();
+            _waveDataChunks = ByteArrayExt.readAllChunks(content);
             if (!((Lambda.has(_waveDataChunks, "fmt ")) && (Lambda.has(_waveDataChunks, "data"))))
                 dispatchEvent(new ErrorEvent("Not good wave file"))
             else {
@@ -445,8 +442,8 @@ class PCMSample extends EventDispatcher
      */
     public function saveWaveAsByteArray() : ByteArray {
         var bytesPerSample : Int = (_outputBitRate * _outputChannels) >> 3;
-        var waveFile : ByteArrayExt = new ByteArrayExt();
-        var content : ByteArrayExt = new ByteArrayExt();
+        var waveFile : ByteArray = new ByteArray();
+        var content : ByteArray = new ByteArray();
         var fmt : ByteArray = new ByteArray();  
         
         // convert sampling rate, channels and bitrate  
@@ -454,30 +451,21 @@ class PCMSample extends EventDispatcher
             _updateWaveDataFromSamples();
         }  
         // write wave file  
-#if flash
         fmt.endian = LITTLE_ENDIAN;
-#else
-        fmt.endian = "littleEndian";
-#end
         fmt.writeShort(1);
         fmt.writeShort(_outputChannels);
         fmt.writeInt(Std.int(_outputSampleRate));
         fmt.writeInt(Std.int(_outputSampleRate * bytesPerSample));
         fmt.writeShort(bytesPerSample);
         fmt.writeShort(_outputBitRate);
-#if flash
+
         content.endian = LITTLE_ENDIAN;
-#else
-        content.endian = "littleEndian";
-#end
-        content.writeChunk("fmt ", fmt);
-        content.writeChunk("data", _waveData);
-#if flash
+        ByteArrayExt.writeChunk(content, "fmt ", fmt);
+        ByteArrayExt.writeChunk(content, "data", _waveData);
+
         waveFile.endian = LITTLE_ENDIAN;
-#else
-        waveFile.endian = "littleEndian";
-#end
-        waveFile.writeChunk("RIFF", content, "WAVE");
+        ByteArrayExt.writeChunk(waveFile, "RIFF", content, "WAVE");
+
         return waveFile;
     }
 
@@ -742,7 +730,7 @@ class PCMSample extends EventDispatcher
         var byteRate : Int = _outputBitRate >> 3;
         var output : Array<Float> = this.samples;
 
-        if (_waveData == null) _waveData = new ByteArrayExt();
+        if (_waveData == null) _waveData = new ByteArray();
         _waveDataSampleRate = _outputSampleRate;
         _waveDataBitRate = _outputBitRate;
         _waveDataChannels = _outputChannels;

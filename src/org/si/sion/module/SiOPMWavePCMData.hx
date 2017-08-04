@@ -11,7 +11,8 @@ import flash.errors.Error;
 import flash.media.Sound;
 #else
 import openfl.errors.Error;
-import openfl._v2.media.Sound;
+import openfl.media.Sound;
+//import openfl._v2.media.Sound;
 #end
 
 import org.si.sion.utils.SiONUtil;

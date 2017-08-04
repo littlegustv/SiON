@@ -193,7 +193,8 @@ class SiONSoundFontLoader extends EventDispatcher
     
     private function _analyzeZip(bytes : ByteArray) : Void
     {
-        var fileList : Array<ByteArrayExt> = new ByteArrayExt(bytes).expandZipFile();
+        var bae : ByteArrayExt = new ByteArrayExt(bytes);
+        var fileList : Array<ByteArrayExt> = ByteArrayExt.expandZipFile(bae);
         var i : Int;
         var imax : Int = fileList.length;
         var mml : String = null;
@@ -203,10 +204,10 @@ class SiONSoundFontLoader extends EventDispatcher
             file = fileList[i];
             if (new EReg('\\.mp3$', "").match(file.name)) {
                 snd = new Sound();
-                snd.loadCompressedDataFromByteArray(file, file.length);
+                snd.loadCompressedDataFromByteArray(file.bytes, file.bytes.length);
             }
             else if (new EReg('\\.mml$', "").match(file.name)) {
-                mml = file.readUTF();
+                mml = file.bytes.readUTF();
             }
         }
         _compileSystemCommand(Translator.extractSystemCommand(mml));

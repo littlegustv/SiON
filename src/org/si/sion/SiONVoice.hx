@@ -329,7 +329,7 @@ class SiONVoice extends SiMMLVoice implements ISiOPMWaveInterface
      *  @see #org.si.sion.module.SiOPMWaveSamplerData.extractThreshold
      *  @see #org.si.sion.SiONDriver.render()
      */
-    public function setSamplerWave(index : Int, data : Sound, ignoreNoteOff : Bool = false, pan : Int = 0, srcChannelCount : Int = 2, channelCount : Int = 0) : SiOPMWaveSamplerData
+    public function setSamplerWave(index : Int, data : Dynamic, ignoreNoteOff : Bool = false, pan : Int = 0, srcChannelCount : Int = 2, channelCount : Int = 0) : SiOPMWaveSamplerData
     {
         moduleType = 10;
         var samplerTable : SiOPMWaveSamplerTable = (try cast(waveData, SiOPMWaveSamplerTable) catch(e:Dynamic) null);

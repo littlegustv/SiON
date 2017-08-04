@@ -224,6 +224,7 @@ class MMLSequencer
 
         // callback before compiling
         var mmlString : String = onBeforeCompile(mml);
+        trace('MMLS: 2.5');
         if (mmlString == null) {
             mmlData = null;
             return false;
@@ -430,6 +431,7 @@ class MMLSequencer
      */
     private function onBeforeCompile(mml : String) : String
     {
+        trace("onBeforeCompile", mml);
         return null;
     }
     

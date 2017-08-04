@@ -10,7 +10,7 @@
 	<source path="samples" />
 
 	<haxelib name="openfl" />
-	<haxelib name="openfl-ouya" if="ouya" />
+	<haxedef name="fdb" if="flash"/>
 
 	<assets path="Assets" rename="assets" exclude="lime.svg" />
 	<icon path="Assets/lime.svg" />

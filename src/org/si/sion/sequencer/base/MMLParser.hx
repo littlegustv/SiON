@@ -382,25 +382,27 @@ class MMLParser
 
     private static function createRegExp(reset : Bool) : EReg
     {
-        // user defined event letters
-        var ude : Array<String> = [];
-        for (letter in _userDefinedEventID.keys()) {
-            ude.push(letter);
+        if (_mmlRegExp == null || reset) {
+            // user defined event letters
+            var ude : Array<String> = [];
+            for (letter in _userDefinedEventID.keys()) {
+                ude.push(letter);
+            }
+            var uderex : String = (ude.length > 0) ? (ude.join("|")) : "a";  // ('A`) I know its an ad-hok solution...
+
+            var rex : String;
+            rex = "(\\s+)";                                            // whitespace (res[1])
+            rex += "|(#[^;]*)";                                        // system (res[2])
+            rex += "|(";                                               // --all-- (res[3])
+            rex += "([a-g])([\\-+#]?)";                                // note (res[4],[5])
+            rex += "|(" + uderex + ")";                                // module events (res[6])
+            rex += "|(@[qvio]?|&&|!@ns|[rlqovt^<>()\\[\\]/|$%&*,;])";  // default events (res[7])
+            rex += "|(\\{.*?\\}[0-9]*\\*?[\\-0-9.]*\\+?[\\-0-9.]*)";   // table event (res[8])
+            rex += ")\\s*(-?[0-9]*)";                                  // parameter (res[9])
+            rex += "\\s*(\\.*)";                                       // periods (res[10])
+            _mmlRegExp = new EReg(rex, "gms");
         }
-        var uderex : String = (ude.length > 0) ? (ude.join("|")) : "a";  // ('A`) I know its an ad-hok solution...
-
-        var rex : String;
-        rex = "(\\s+)";                                            // whitespace (res[1])
-        rex += "|(#[^;]*)";                                        // system (res[2])
-        rex += "|(";                                               // --all-- (res[3])
-        rex += "([a-g])([\\-+#]?)";                                // note (res[4],[5])
-        rex += "|(" + uderex + ")";                                // module events (res[6])
-        rex += "|(@[qvio]?|&&|!@ns|[rlqovt^<>()\\[\\]/|$%&*,;])";  // default events (res[7])
-        rex += "|(\\{.*?\\}[0-9]*\\*?[\\-0-9.]*\\+?[\\-0-9.]*)";   // table event (res[8])
-        rex += ")\\s*(-?[0-9]*)";                                  // parameter (res[9])
-        rex += "\\s*(\\.*)";                                       // periods (res[10])
-        _mmlRegExp = new EReg(rex, "gms");
-
+        
         return _mmlRegExp;
     }
     
@@ -618,8 +620,9 @@ class MMLParser
         trace("MMLP.init_track: 1");
         while (_repeatStac.length > 0) _repeatStac.pop();  // clear repeating pointer stac
         trace("MMLP.init_track: 2");
-        var lastPosition = _mmlRegExp.matchedPos();
-        trace('MMLP.init_track: 3: lastPosition = $lastPosition');
+        //var lastPosition = 0;
+        //try { lastPosition = _mmlRegExp.matchedPos().pos; } catch(e:Dynamic) {}
+        //trace('MMLP.init_track: 3: lastPosition = $lastPosition');
         _headMMLIndex = _lastMatchedPos;
         trace("MMLP.init_track: 4");
     }

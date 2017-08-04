@@ -595,13 +595,16 @@ class SiMMLSequencer extends MMLSequencer
         var endID : Int;
 
         // reset
+        trace("reset");
         _resetParserParameters();
 
         // remove comments
+        trace("remove comments");
         mml += "\n";
         mml = comrex.replace(mml, "");
 
         // format last
+        trace("format last");
         i = mml.length;
         do {
             if (i == 0)
@@ -614,52 +617,66 @@ class SiMMLSequencer extends MMLSequencer
             mml += ";";
 
         // expand macros
+        trace("expand macros");
         expmml = "";
         while (seqrex.match(mml)) {
             // normal sequence
+            trace("normal sequence");
             if (seqrex.matched(1) == null) {
                 expmml += _expandMacro(seqrex.matched(4)) + ";";
             }
             else if (seqrex.matched(3) == null) {
                 // system command
+                trace("system command");
                 if (Std.string(seqrex.matched(2)) == "END") {
                     // #END command
+                    trace("#END command");
                     break;
                 }
                 else if (!_parseSystemCommandBefore(Std.string(seqrex.matched(1)), seqrex.matched(4))) {
                     // parse system command
                     // if the function returns false, parse system command after compiling mml.
+                    trace("parse system command");
                     expmml += Std.string(seqrex.matched(0));
                 }
             }
             else {
                 // macro definition
+                trace("macro definition");
                 str2 = seqrex.matched(2);
                 concat = (seqrex.matched(3) == "+=");
                 // parse macro IDs
+                trace("parse macro IDs");
                 while (midrex.match(str2)) {
-
+                    trace("parse macro IDs 1");
                     if ((midrex.matched(0) == null) || (midrex.matched(0).length == 0)) break;
 
+                    trace("parse macro IDs 2");
                     startID = (midrex.matched(1) != null) ? (midrex.matched(1).charCodeAt(0) - codeA) : 0;
                     endID = (midrex.matched(2) != null) ? (midrex.matched(3) != null ? (midrex.matched(3).charCodeAt(0) - codeA) : MACRO_SIZE - 1) : startID;
+                    trace("parse macro IDs 3");
                     for (i in  startID...(endID + 1)) {
                         if (concat) {
+                            trace("parse macro IDs 4");
                             _macroStrings[i] += _macroExpandDynamic ? Std.string(seqrex.matched(4)) : _expandMacro(seqrex.matched(4));
                         }
                         else {
+                            trace("parse macro IDs 5");
                             _macroStrings[i] = _macroExpandDynamic ? Std.string(seqrex.matched(4)) : _expandMacro(seqrex.matched(4));
                         }
                     }
+                    trace("parse macro IDs 6");
                     str2 = midrex.matchedRight();
                 }
             }
 
             // next
+            trace("next");
             mml = seqrex.matchedRight();
         }
 
         // expand repeat
+        trace("expand repeat");
         expmml = reprex.map(expmml,
                         function(regex:EReg) : String{
                             imax = ((regex.matched(1).length > 0)) ? (Std.parseInt(regex.matched(1)) - 1) :
@@ -676,7 +693,8 @@ class SiMMLSequencer extends MMLSequencer
                         }
                         );
 
-        //trace(mml); trace(expmml);
+        trace("mml, expmml");
+        trace(mml); trace(expmml);
         return expmml;
     }
     
@@ -786,7 +804,7 @@ class SiMMLSequencer extends MMLSequencer
                     f = 1 << i;
                     if (_flagMacroExpanded != 0 && f != 0) throw _errorCircularReference(m);
                     if (_macroStrings[i] != null) {
-                        if (regex.matched(2).length > 0) {
+                        if (regex.matched(2) != null && regex.matched(2).length > 0) {
                             if (regex.matched(3).length > 0) t = Std.parseInt(regex.matched(3));
                             return "!@ns" + Std.string(t) + (((_macroExpandDynamic)) ? _expandMacro(_macroStrings[i], true) : _macroStrings[i]) + "!@ns" + Std.string(-t);
                         }
