@@ -6,8 +6,9 @@
   "description": "Software synthesizer library to dynamically create music and sound effects, allowing your final binary to be small.",
   "version": "0.0.3-alpha",
   "releasenote": "Fixed parsing of macros so now a proper song plays!",
-  "contributors": ["gunnbr"],    
+  "contributors": ["gunnbr"],
+  "classPath": "src/",
   "dependencies": {
-    "openfl": "6.0.0"
+    "openfl": ""
   }
 }
