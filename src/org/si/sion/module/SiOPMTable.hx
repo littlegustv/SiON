@@ -974,8 +974,8 @@ class SiOPMTable
         j = (-ENV_TOP) << 3;
         n = 16 / (1 << LOG_VOLUME_BITS);
         p = 0.0625;
-        trace("HMM!", j, table2[0], NOISE_TABLE_SIZE, table2[NOISE_TABLE_SIZE - 1], p, logTable[table2[0] + j], logTable[table2[NOISE_TABLE_SIZE - 1] + j], logTable.length, table2.length);
-        v = (logTable[table2[0] + j] - logTable[table2[NOISE_TABLE_SIZE - 1] + j]) * p;
+        trace("HMM!", logTable[table2[0] + j - 1] - logTable[table2[NOISE_TABLE_SIZE - 1] + j - 1]);
+        v = (logTable[table2[0] + j - 1] - logTable[table2[NOISE_TABLE_SIZE - 1] + j - 1]) * p;
         table1[0] = calcLogTableIndex(v * n);
         for (i in 0...imax) {
             imax2 = table2[i] + j;
