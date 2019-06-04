@@ -1552,12 +1552,12 @@ class SiONDriver extends Sprite implements ISiOPMWaveInterface
     private function _onSoundEvent(e : Event) : Void
     {
         if (Std.is(e.target, Sound)) {
-            e.target.removeEventListener(Event.COMPLETE, _onSoundEvent);
-            e.target.removeEventListener(IOErrorEvent.IO_ERROR, _onSoundEvent);
+            //e.target.removeEventListener(Event.COMPLETE, _onSoundEvent);
+            //e.target.removeEventListener(IOErrorEvent.IO_ERROR, _onSoundEvent);
         }
         else {  // e.target is SoundLoader  
-            e.target.removeEventListener(Event.COMPLETE, _onSoundEvent);
-            e.target.removeEventListener(ErrorEvent.ERROR, _onSoundEvent);
+            //e.target.removeEventListener(Event.COMPLETE, _onSoundEvent);
+            //e.target.removeEventListener(ErrorEvent.ERROR, _onSoundEvent);
         }
         var i : Int = Lambda.indexOf(_loadingSoundList, e.target);
         if (i != -1)             _loadingSoundList.splice(i, 1);
@@ -1691,9 +1691,7 @@ class SiONDriver extends Sprite implements ISiOPMWaveInterface
         }
         _mmlString = mml;
         trace('SDR.prepareCompile($_data, $_mmlString)');
-        trace('sequencer is $sequencer');
         sequencer.prepareCompile(_data, _mmlString);
-        trace('sequencer done preparing.');
         _jobProgress = 0.01;
         _timeCompile = 0;
         _currentJob = 1;
@@ -1846,19 +1844,26 @@ class SiONDriver extends Sprite implements ISiOPMWaveInterface
         // set sequencer tracks (should be called after module.reset())
         sequencer._prepareProcess(_data, _sampleRate, _bufferLength);
         // parse #EFFECT command (should be called after effector._reset())
+        
+        trace('parsing system commands??');
         if (_data != null) {
             _parseSystemCommand(_data.systemCommands);
         }
+
+        trace('effector');
         // set effector connections
         effector._prepareProcess();
         // clear event queue
+        trace('clear event queue');
         _trackEventQueue.splice(0, _trackEventQueue.length);
 
+        trace('set position');
         // set position
         if (_data != null && _position > 0) {
             sequencer.dummyProcess(Math.round(_position * _sampleRate * 0.001));
         }
 
+        trace('start background sound');
         // start background sound
         if (_backgroundSound != null) {
             _startBackgroundSound();

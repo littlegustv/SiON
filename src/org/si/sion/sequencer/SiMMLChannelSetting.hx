@@ -94,7 +94,6 @@ class SiMMLChannelSetting
     @:allow(org.si.sion.sequencer)
     private function initializeTone(track : SiMMLTrack, chNum : Int, bufferIndex : Int) : Int
     {
-
         // update channel instance
         if (track.channel == null) {
             // create new channel

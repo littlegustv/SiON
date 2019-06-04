@@ -105,7 +105,7 @@ class SiOPMChannelBase
     // LPFilter
     /** filter switch */private var _filterOn : Bool;
     /** filter type */private var _filterType : Int;
-    /** cutoff frequency */private var _cutoff : Int;
+    /** cutoff frequency */private var _cutoff : Int = 0;
     /** cutoff frequency */private var _cutoff_offset : Int;
     /** resonance */private var _resonance : Float;
     /** filter Variables */private var _filterVriables : Array<Float>;
@@ -119,7 +119,7 @@ class SiOPMChannelBase
     
     // Low frequency oscillator
     /** frequency ratio */private var _freq_ratio : Int;
-    /** lfo switch */private var _lfo_on : Int;
+    /** lfo switch */private var _lfo_on : Int = 0;
     /** lfo timer */private var _lfo_timer : Int;
     /** lfo timer step */private var _lfo_timer_step : Int;
     /** lfo step buffer */private var _lfo_timer_step_ : Int;

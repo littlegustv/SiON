@@ -84,7 +84,7 @@ class SiOPMChannelManager
             _length++;
         }
     }
-    
+            
     
     // get new channel. returns null when the channel count is overflow.
     private function _newChannel(prev : SiOPMChannelBase, bufferIndex : Int) : SiOPMChannelBase
@@ -97,13 +97,14 @@ class SiOPMChannelManager
             newChannel._next._prev = newChannel._prev;
         }
         else {
+        // trace('SiOPMChannelManager: else', Std.string( _channelClass ) );
             // The head channel is active -> channel overflow.
             // create new channel.
             newChannel = Type.createInstance(_channelClass, [_chip]);
             newChannel._channelType = _channelType;
             _length++;
         }
-
+        
         // set newChannel to tail and activate.
         newChannel._isFree = false;
         newChannel._prev = _term._prev;

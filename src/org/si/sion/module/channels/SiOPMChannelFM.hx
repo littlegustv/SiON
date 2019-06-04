@@ -117,7 +117,6 @@ class SiOPMChannelFM extends SiOPMChannelBase
     public function new(chip : SiOPMModule)
     {
         super(chip);
-
         _funcProcessList = [[_proc1op_loff, _proc2op, _proc3op, _proc4op, _proc2ana, _procring, _procsync, _proc2op, _procpcm_loff],
                 [_proc1op_lon, _proc2op, _proc3op, _proc4op, _proc2ana, _procring, _procsync, _proc2op, _procpcm_lon]];
         operator = new Array<SiOPMOperator>();
@@ -133,7 +132,6 @@ class SiOPMChannelFM extends SiOPMChannelBase
 
         _pipe0 = SLLint.allocRing(1);
         _pipe1 = SLLint.allocRing(1);
-
         initialize(null, 0);
     }
     

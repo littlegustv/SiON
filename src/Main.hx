@@ -2,7 +2,7 @@ package;
 
 import openfl.ui.Keyboard;
 import openfl.Lib;
-import siONTenorion.Tenorion;
+// import siONTenorion.Tenorion;
 import tutorials.TheABCSong;
 import tutorials.EventTrigger;
 import tutorials.SoundFontSample;
@@ -95,7 +95,7 @@ class Menu extends Sprite
         { name: "Kaosillator", type: Kaosillator},
         //{ name: "KaosPad", type: KaosPad},
         //{ name: "Keyboard", type: Keyboard},
-        { name: "Tenorion", type: Tenorion},
+        // { name: "Tenorion", type: Tenorion},
 		{ name: "Custom Fader", type: CustomFader},
 		{ name: "Sound Font", type: SoundFontSample},
 	];

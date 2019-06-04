@@ -120,7 +120,7 @@ class SiOPMOperator
     private var _ams : Int;
     /** @private Key code = oct&lt;&lt;4 + note [0,127] */
     @:allow(org.si.sion.module.channels)
-    private var _kc : Int;
+    private var _kc : Int = 0;
     /** @private SSG type envelop control */
     @:allow(org.si.sion.module.channels)
     private var _ssg_type : Int;
@@ -173,13 +173,13 @@ class SiOPMOperator
     
     /** @private pitch index = note * 64 + key fraction */
     @:allow(org.si.sion.module.channels)
-    private var _pitchIndex : Int;
+    private var _pitchIndex : Int = 0;
     /** @private pitch index shift. This value is linked with dt2 and detune. */
     @:allow(org.si.sion.module.channels)
-    private var _pitchIndexShift : Int;
+    private var _pitchIndexShift : Int = 0;
     /** @private pitch index shift by pitch modulation. This value is linked with dt2. */
     @:allow(org.si.sion.module.channels)
-    private var _pitchIndexShift2 : Int;
+    private var _pitchIndexShift2 : Int = 0;
     /** @private frequency modulation left-shift. 15 for FM, fb+6 for feedback. */
     @:allow(org.si.sion.module.channels)
     private var _fmShift : Int;
@@ -206,7 +206,7 @@ class SiOPMOperator
     private var _eg_total_level : Int;
     /** @private Internal total level offset by volume [-192,832]*/
     @:allow(org.si.sion.module.channels)
-    private var _eg_tl_offset : Int;
+    private var _eg_tl_offset : Int = 0;
     /** @private Internal key scaling rate = _kc >> _ks [0,32] */
     @:allow(org.si.sion.module.channels)
     private var _eg_key_scale_rate : Int;
@@ -215,7 +215,7 @@ class SiOPMOperator
     private var _eg_key_scale_level_rshift : Int;
     /** @private Envelop generator level [0,1024] */
     @:allow(org.si.sion.module.channels)
-    private var _eg_level : Int;
+    private var _eg_level : Int = 0;
     /** @private Envelop generator output [0,1024&lt;&lt;3] */
     @:allow(org.si.sion.module.channels)
     private var _eg_out : Int;
@@ -581,7 +581,7 @@ class SiOPMOperator
     /** constructor */
     public function new(chip : SiOPMModule)
     {
-        ('              ########## SiOPMOperator($chip) ##########');
+        // trace('              ########## SiOPMOperator($chip) ##########');
         _table = SiOPMTable.instance;
         _chip = chip;
         _feedPipe = SLLint.allocRing(1);

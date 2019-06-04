@@ -971,14 +971,15 @@ class SiOPMTable
         table1 = new Array<Int>();
         table2 = waveTables[PG_NOISE_WHITE].wavelet;
         imax = NOISE_TABLE_SIZE;
-        j = (-ENV_TOP) << 3;
+        j = ( (-ENV_TOP) << 3 ) - 1;
+        // trace('hmm', logTable);
         n = 16 / (1 << LOG_VOLUME_BITS);
         p = 0.0625;
-        v = (logTable[Std.int(Math.min(table2[0] + j, logTable.length - 1))] - logTable[Std.int(Math.min(table2[NOISE_TABLE_SIZE - 1] + j, logTable.length - 1))]) * p;
+        v = (logTable[ table2[0] + j ] - logTable[ table2[NOISE_TABLE_SIZE - 1] + j ]) * p;
         table1[0] = calcLogTableIndex(v * n);
         for (i in 0...imax) {
             imax2 = table2[i] + j;
-            imax3 = table2[Std.int(Math.max(0, i - 1))] + j;
+            imax3 = table2[Std.int( Math.max( 0, i - 1 ) ) ] + j;
             v = (v + logTable[imax2] - logTable[imax3]) * p;
             table1[i] = calcLogTableIndex(v * n);
         }
@@ -991,7 +992,7 @@ class SiOPMTable
         table1 = new Array<Int>();
         table2 = waveTables[PG_NOISE_WHITE].wavelet;
         imax = NOISE_TABLE_SIZE;
-        j = (-ENV_TOP) << 3;
+        j = ( (-ENV_TOP) << 3 ) - 1;
         n = 0.125 / (1 << LOG_VOLUME_BITS);
         for (i in 0...imax) {
             imax2 = table2[i] + j;

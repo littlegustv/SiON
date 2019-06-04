@@ -315,8 +315,11 @@ class SiMMLSequencer extends MMLSequencer
     /** @private [sion internal] Reset all tracks. */
     public function _resetAllTracks() : Void
     {
+        trace('all tracks:', tracks.length);
         for (trk in tracks){
+            trace('resetting track');
             trk._reset(0);
+            trace('track reset');
             trk.velocity = setting.defaultVolume;
             trk.quantRatio = setting.defaultQuantRatio / setting.maxQuantRatio;
             trk.quantCount = calcSampleCount(setting.defaultQuantCount);
@@ -428,11 +431,8 @@ class SiMMLSequencer extends MMLSequencer
      */
     override public function prepareCompile(data : MMLData, mml : String) : Bool
     {
-        trace('Sequencer.prepareCompile()');
         _freeAllTracks();
-        trace('Sequencer.prepare calling super');
         var returnValue = super.prepareCompile(data, mml);
-        trace('Sequencer.superPrepare finished');
         return returnValue;
     }
     
@@ -476,8 +476,11 @@ class SiMMLSequencer extends MMLSequencer
             }
         }
 
+        trace('resetting all tracks');
         // reset
         _resetAllTracks();
+
+        trace('done resetting...');
     }
     
     

@@ -905,6 +905,7 @@ class SiMMLTrack
     @:allow(org.si.sion.sequencer)
     private function _reset(bufferIndex : Int) : Void
     {
+        trace( 'SiMMLTrack resetting track!!', bufferIndex );
         var i : Int;
         
         // channel module setting
@@ -923,16 +924,18 @@ class SiMMLTrack
             _velocityMode = SiOPMTable.VM_LINEAR;
             _expressionMode = SiOPMTable.VM_LINEAR;
         }
+        trace('SiMMLTrack : initialized channel by channel settings');
         _velocity = 256;
         _expression = 128;
         _pitchBend = 0;
         _note = -1;
         channel = null;
         _voiceIndex = _channelModuleSetting.initializeTone(this, INT_MIN_VALUE, bufferIndex);
+        trace('SiMMLTrack initialized tone');
         //_voiceIndex = _simulator.initializeTone(this, int.MIN_VALUE, bufferIndex);
         var tlTables : Array<Array<Int>> = SiOPMTable.instance.eg_tlTables;
         channel.setVolumeTables(tlTables[_velocityMode], tlTables[_expressionMode]);
-
+        trace('SiMMLTrack set volume tables...');
         // initialize parameters
         noteShift = 0;
         pitchShift = 0;
@@ -985,7 +988,7 @@ class SiMMLTrack
             _table_env_ma[i] = null;
             _table_env_mp[i] = null;
         }
-
+        trace('SiMMLTrack nothing stands out yet');
          // reset pointer
         executor.resetPointer();
     }

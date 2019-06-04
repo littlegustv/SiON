@@ -1,6 +1,6 @@
 // simple example
-import SiONData;
-import SiONDriver;
+import org.si.sion.SiONDriver;
+import org.si.sion.SiONData;
 
 import openfl.display.Sprite;
 import org.si.sion.*;
