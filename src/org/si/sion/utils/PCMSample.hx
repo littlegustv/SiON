@@ -17,6 +17,7 @@ import openfl.events.ErrorEvent;
 import openfl.errors.Error;
 import openfl.events.*;
 import openfl.utils.ByteArray;
+import openfl.utils.Endian;
 #end
 
 import org.si.utils.ByteArrayExt; 
